@@ -1,0 +1,14 @@
+[project]
+name = "hpx"
+dynamic = ["version"]
+
+[build-system]
+requires = [
+    "numpy>=1.25,<2",
+    "setuptools>=64",
+    "setuptools_scm>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "hpx/_version.py"

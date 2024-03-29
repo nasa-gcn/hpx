@@ -30,15 +30,34 @@ static void surface_interp_loop(char **args,
     Point_list points;
     points.reserve(dimensions[1]);
     Point_value_map values;
+    bool good = true;
 
-    for (npy_intp i = 0; i < dimensions[1]; i++)
+    for (npy_intp i = 0; good && i < dimensions[1]; i++)
     {
-        Point point(*(double *)&args[0][i * steps[4]],
-                    *(double *)&args[0][i * steps[4] + steps[5]],
-                    *(double *)&args[0][i * steps[4] + steps[5] * 2]);
-        double value = *(double *)&args[1][i * steps[6]];
-        points.push_back(point);
-        values.insert(std::make_pair(point, value));
+        double xyz[3];
+        for (int j = 0; good && j < 3; j++)
+        {
+            xyz[j] = *(double *)&args[0][i * steps[4] + j * steps[5]];
+            if (!std::isfinite(xyz[j]))
+                good = false;
+        }
+
+        if (good)
+        {
+            Point point(*(double *)&args[0][i * steps[4]],
+                        *(double *)&args[0][i * steps[4] + steps[5]],
+                        *(double *)&args[0][i * steps[4] + steps[5] * 2]);
+            double value = *(double *)&args[1][i * steps[6]];
+            points.push_back(point);
+            values.insert(std::make_pair(point, value));
+        }
+    }
+
+    if (!good)
+    {
+        for (npy_intp i = 0; i < dimensions[0]; i++)
+            *(double *)&args[3][i * steps[3]] = NAN;
+        return;
     }
 
     Delaunay delaunay(points.begin(), points.end());
@@ -46,16 +65,25 @@ static void surface_interp_loop(char **args,
 
     for (npy_intp i = 0; i < dimensions[0]; i++)
     {
-        Point point(*(double *)&args[2][i * steps[2]],
-                    *(double *)&args[2][i * steps[2] + steps[7]],
-                    *(double *)&args[2][i * steps[2] + steps[7] * 2]);
-        Vector normal(point - CGAL::ORIGIN);
-        Point_coordinate_vector coords;
-        auto norm = CGAL::surface_neighbor_coordinates_3(
-                        delaunay, point, normal, std::back_inserter(coords))
-                        .second;
-        auto result = CGAL::linear_interpolation(
-            coords.begin(), coords.end(), norm, value_access);
+        double xyz[3], result = NAN;
+        good = true;
+        for (int j = 0; good && j < 3; j++)
+        {
+            xyz[j] = *(double *)&args[2][i * steps[2] + j * steps[7]];
+            if (!std::isfinite(xyz[j]))
+                good = false;
+        }
+        if (good)
+        {
+            Point point(xyz[0], xyz[1], xyz[2]);
+            Vector normal(point - CGAL::ORIGIN);
+            Point_coordinate_vector coords;
+            auto norm = CGAL::surface_neighbor_coordinates_3(
+                            delaunay, point, normal, std::back_inserter(coords))
+                            .second;
+            result = CGAL::linear_interpolation(
+                coords.begin(), coords.end(), norm, value_access);
+        }
         *(double *)&args[3][i * steps[3]] = result;
     }
 }

@@ -7,7 +7,6 @@ setup(
         Extension(
             "hpx._core",
             define_macros=[
-                ("CGAL_NDEBUG", None),
                 ("Py_LIMITED_API", 0x030A0000),
                 ("NPY_TARGET_VERSION", "NPY_1_19_API_VERSION"),
                 ("NPY_NO_DEPRECATED_API", "NPY_1_19_API_VERSION"),

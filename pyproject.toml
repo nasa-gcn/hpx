@@ -1,5 +1,8 @@
 [project]
 name = "hpx"
+dependencies = [
+    "numpy>=1.23",
+]
 dynamic = ["version"]
 
 [build-system]

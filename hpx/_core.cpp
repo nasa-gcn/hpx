@@ -9,7 +9,6 @@
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Delaunay_triangulation_3<Kernel, CGAL::Fast_location> Delaunay;
-typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef Kernel::Point_3 Point;
 typedef Kernel::Vector_3 Vector;
 typedef Kernel::FT Value;

@@ -1,17 +1,14 @@
 [project]
 name = "hpx"
 dependencies = [
-    "numpy>=1.23",
+    "numpy>=1.23, <2",
 ]
-dynamic = ["version"]
+version = "0.0.1"
 
 [build-system]
+build-backend = 'mesonpy'
 requires = [
-    "numpy>=1.25,<2",
-    "setuptools>=64",
-    "setuptools_scm>=8",
+    "meson>=1.4.0",
+    "meson-python",
+    "numpy>=2.0.0rc1",
 ]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
-version_file = "hpx/_version.py"

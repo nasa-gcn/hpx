@@ -9,23 +9,23 @@ on:
 
 jobs:
 
-  source:
-    name: Build source package
-    runs-on: ubuntu-latest
+  # source:
+  #   name: Build source package
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
 
-      - uses: docker://python
-        with:
-          args: 'sh -c "pip install build && python -m build --sdist"'
+  #     - uses: docker://python
+  #       with:
+  #         args: 'sh -c "pip install build && python -m build --sdist"'
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: source
-          path: dist/*
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: source
+  #         path: dist/*
 
   wheels:
     name: Build binary packages

@@ -21,4 +21,4 @@ before-all = [
 ]
 
 [tool.cibuildwheel.config-settings]
-setup-args = "-Dcmake_prefix_path=~miniconda/lib/cmake/CGAL"
+setup-args = "-Dcmake_prefix_path=~/miniconda/lib/cmake/CGAL"

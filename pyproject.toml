@@ -16,6 +16,6 @@ requires = [
 
 [tool.cibuildwheel]
 before-all = [
-    "curl -OL micro.mamba.pm/install.sh",
+    "curl -o install.sh -L micro.mamba.pm/install.sh",
     "${shell} install.sh"
 ]

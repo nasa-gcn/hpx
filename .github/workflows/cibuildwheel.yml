@@ -52,8 +52,6 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17
-        env:
-          CIBW_BEFORE_ALL_MACOS: brew install cgal
 
       - uses: actions/upload-artifact@v4
         with:

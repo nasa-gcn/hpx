@@ -13,3 +13,8 @@ requires = [
     "meson-python",
     "numpy>=2.0.0rc1",
 ]
+
+[tool.cibuildwheel]
+before-all = [
+    '"${SHELL}" <(curl -L micro.mamba.pm/install.sh)'
+]

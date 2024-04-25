@@ -131,22 +131,14 @@ static void LinearSphericalInterpolator_loop(char **args,
     for (npy_intp i = 0; i < dimensions[0]; i++)
     {
         double xyz[3];
-        bool good = true;
+        double result = NAN;
         for (npy_intp j = 0; j < 3; j++)
         {
             double component = *(double *)&args[0][i * steps[0] + j * steps[2]];
-            if (std::isfinite(component))
-            {
-                xyz[j] = component;
-            }
-            else
-            {
-                good = false;
-                break;
-            }
+            if (!std::isfinite(component)) goto next;
+            xyz[j] = component;
         }
-        double result;
-        if (good)
+
         {
             Point point(xyz[0], xyz[1], xyz[2]);
             Vector normal(point - CGAL::ORIGIN);
@@ -158,10 +150,7 @@ static void LinearSphericalInterpolator_loop(char **args,
             result = CGAL::linear_interpolation(
                 coords.begin(), coords.end(), norm, values);
         }
-        else
-        {
-            result = NAN;
-        }
+next:
         *(double*)&args[1][i * steps[1]] = result;
     }
 }

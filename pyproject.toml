@@ -17,8 +17,8 @@ requires = [
 [tool.cibuildwheel]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | ${SHELL}",
-    "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp"
+    "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
 ]
-
-[tool.cibuildwheel.config-settings]
-setup-args = "-Dcmake_prefix_path=~/micromamba/lib/cmake/CGAL"
+environment = {
+    CMAKE = '~/micromamba/bin/cmake'
+}

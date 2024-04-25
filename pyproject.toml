@@ -19,3 +19,6 @@ before-all = [
     "curl -L https://micro.mamba.pm/install.sh | ${SHELL}",
     "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp"
 ]
+
+[tool.cibuildwheel.config-settings]
+setup-args=-Dcmake_prefix_path=~miniconda/lib/cmake/CGAL

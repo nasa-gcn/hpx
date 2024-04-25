@@ -18,6 +18,5 @@ requires = [
 before-all = [
     "curl -OL https://micro.mamba.pm/install.sh",
     "ls",
-    "${shell} < install.sh",
-    "ls ~/micromambda"
+    "${SHELL} < install.sh"
 ]

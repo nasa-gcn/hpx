@@ -61,7 +61,8 @@ jobs:
   publish:
     name: Publish to PyPI
     runs-on: ubuntu-latest
-    needs: [source, wheels]
+    # needs: [source, wheels]
+    needs: wheels
     if: github.event_name == 'release'
 
     steps:

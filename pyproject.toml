@@ -19,6 +19,6 @@ before-all = [
     "curl -L https://micro.mamba.pm/install.sh | ${SHELL}",
     "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
 ]
-environment = {
-    CMAKE = "~/micromamba/bin/cmake"
-}
+
+[tool.cibuildwheel.environment]
+CMAKE = "~/micromamba/bin/cmake"

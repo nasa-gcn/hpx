@@ -21,7 +21,7 @@ before-all = [
 ]
 
 [tool.cibuildwheel.config-settings]
---build-option = "build-dir=~/build"
+build-dir = "~/build"
 
 [tool.cibuildwheel.environment]
 CMAKE = "~/micromamba/bin/cmake"

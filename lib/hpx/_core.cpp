@@ -7,6 +7,17 @@
 #include <CGAL/Origin.h>
 #include <CGAL/surface_neighbor_coordinates_3.h>
 
+/* PyModule_AddObjectRef was added in Python 3.10. */
+#define PyModule_AddObjectRef_VERSION 0x030a0000
+#if PY_VERSION_HEX < PyModule_AddObjectRef_VERSION || (defined(Py_LIMITED_API) && Py_LIMITED_API+0 < PyModule_AddObjectRef_VERSION)
+static int PyModule_AddObjectRef(PyObject *mod, const char *name, PyObject *value) {
+    int result = PyModule_AddObject(mod, name, value);
+    Py_XDECREF(value);
+    return result;
+}
+#endif
+
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Delaunay_triangulation_3<Kernel, CGAL::Fast_location> Delaunay;
 typedef Kernel::Point_3 Point;

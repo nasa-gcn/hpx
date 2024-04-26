@@ -20,5 +20,5 @@ before-all = [
     "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
 ]
 environment = {
-    CMAKE = '~/micromamba/bin/cmake'
+    CMAKE = "~/micromamba/bin/cmake"
 }

@@ -48,6 +48,10 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.17
 
+      - name: Show meson-log.txt
+        if: failure()  # or `always()`, if output is not too long
+        run: cat ~/build/meson-logs/meson-log.txt
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}

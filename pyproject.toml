@@ -14,15 +14,8 @@ requires = [
     "numpy>=2.0.0rc1",
 ]
 
-[tool.cibuildwheel.environment]
-CMAKE = "~/micromamba/bin/cmake"
-
-[tool.cibuildwheel]
-before-all = [
-    "curl -L https://micro.mamba.pm/install.sh | bash",
-    "~/.local/bin/micromamba config set use_lockfiles False",
-    "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
-]
+[tool.cibuildwheel.macos]
+before-all = "brew install cgal"
 
 # [tool.cibuildwheel.macos.environment]
 # CMAKE = "~/micromamba/bin/cmake"

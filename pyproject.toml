@@ -16,6 +16,7 @@ requires = [
 
 [tool.cibuildwheel.environment]
 CMAKE = "~/micromamba/bin/cmake"
+G_SLICE = "always-malloc"
 
 [tool.cibuildwheel]
 before-all = [

@@ -16,7 +16,7 @@ requires = [
 
 [tool.cibuildwheel]
 before-all = [
-    "curl -L https://micro.mamba.pm/install.sh | ${SHELL}",
+    "bash <(curl -L https://micro.mamba.pm/install.sh)",
     "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
 ]
 

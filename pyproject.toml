@@ -24,5 +24,6 @@ before-all = [
 CMAKE = "~/micromamba/bin/cmake"
 
 [tool.cibuildwheel.macos.environment]
+CMAKE = "~/micromamba/bin/cmake"
 CC = "$(brew --prefix llvm@15)/bin/clang"
 CXX = "$(brew --prefix llvm@15)/bin/clang++"

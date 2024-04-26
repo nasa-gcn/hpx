@@ -16,15 +16,11 @@ requires = [
 
 [tool.cibuildwheel.environment]
 CMAKE = "$(pwd)/micromamba/bin/cmake"
-BIN_FOLDER = "$(pwd)/micromamba/bin"
-PREFIX_LOCATION = "$(pwd)/micromamba"
-INIT_YES = ""
-CONDA_FORGE_YES = "Y"
 
 [tool.cibuildwheel]
 before-all = [
-    "curl -L https://micro.mamba.pm/install.sh | bash",
-    "$(pwd)/micromamba/bin --prefix $(pwd)/micromamba install cgal-cpp cmake"
+    "curl -L https://micro.mamba.pm/install.sh | env BIN_FOLDER=$(pwd)/micromamba/bin PREFIX_LOCATION=$(pwd)/micromamba INIT_YES= CONDA_FORGE_YES=Y bash",
+    "$(pwd)/micromamba/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
 ]
 
 # [tool.cibuildwheel.macos.environment]

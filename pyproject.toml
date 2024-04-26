@@ -20,7 +20,7 @@ CMAKE = "~/micromamba/bin/cmake"
 [tool.cibuildwheel]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
-    "~/.local/bin/micromamba --prefix ~/micromamba install cgal-cpp cmake"
+    "~/.local/bin/micromamba --prefix ~/micromamba -vvv install cgal-cpp cmake"
 ]
 
 # [tool.cibuildwheel.macos.environment]

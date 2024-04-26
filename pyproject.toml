@@ -14,8 +14,15 @@ requires = [
     "numpy>=2.0.0rc1",
 ]
 
+[tool.cibuildwheel]
+build-verbosity = 1
+
 [tool.cibuildwheel.macos]
 before-all = "brew install cgal"
+environment = {
+    CC = "$(brew --prefix llvm@15)/bin/clang",
+    CXX = "$(brew --prefix llvm@15)/bin/clang++"
+}
 
 # [tool.cibuildwheel.macos.environment]
 # CMAKE = "~/micromamba/bin/cmake"

@@ -16,7 +16,6 @@ requires = [
 
 [tool.cibuildwheel.environment]
 CMAKE = "$(pwd)/micromamba/bin/cmake"
-BIN_FOLDER=$(pwd)/micromamba/bin PREFIX_LOCATION=$(pwd)/micromamba INIT_YES= CONDA_FORGE_YES=Y
 
 [tool.cibuildwheel]
 before-all = [

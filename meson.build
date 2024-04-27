@@ -16,6 +16,7 @@ add_project_arguments(
 add_project_dependencies(
     dependency('numpy'),
     dependency('CGAL'),
+    dependency('openmp', required: false),
     language: 'cpp')
 
 py.install_sources('lib/hpx/__init__.py', subdir: 'hpx')

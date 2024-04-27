@@ -27,6 +27,9 @@ before-all = [
     "make install"
 ]
 
+[tool.cibuildwheel.linux.config-settings]
+setup-args = "-Dcmake_prefix_path=/usr/local/lib64/cmake"
+
 [tool.cibuildwheel.macos]
 before-all = "brew install cgal libomp"
 

@@ -19,10 +19,10 @@ build-verbosity = 1
 
 [tool.cibuildwheel.macos]
 before-all = "brew install cgal"
-environment = {
-    CC = "$(brew --prefix llvm@15)/bin/clang",
-    CXX = "$(brew --prefix llvm@15)/bin/clang++"
-}
+
+[tool.cibuildwheel.macos.environment]
+CC = "$(brew --prefix llvm@15)/bin/clang"
+CXX = "$(brew --prefix llvm@15)/bin/clang++"
 
 # [tool.cibuildwheel.macos.environment]
 # CMAKE = "~/micromamba/bin/cmake"

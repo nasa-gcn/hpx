@@ -16,7 +16,7 @@ requires = [
 
 [tool.cibuildwheel]
 build-verbosity = 1
-skip = "*i686*"
+skip = ["*i686*", "*musl*"]
 
 [tool.cibuildwheel.linux]
 before-all = [

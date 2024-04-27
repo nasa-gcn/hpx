@@ -44,7 +44,5 @@ CXX = "$(brew --prefix llvm@15)/bin/clang++"
 CPPFLAGS = "-I$(brew --prefix libomp)/include"
 LDFLAGS = "-L$(brew --prefix libomp)/lib"
 
-# [tool.cibuildwheel.macos.environment]
-# CMAKE = "~/micromamba/bin/cmake"
-# CC = "$(brew --prefix llvm@15)/bin/clang"
-# CXX = "$(brew --prefix llvm@15)/bin/clang++"
+[tool.cibuildwheel.windows]
+before-all = "vcpkg install cgal"

@@ -27,7 +27,6 @@ before-all = [
     "make install"
 ]
 manylinux-x86_64-image = "manylinux_2_28"
-manylinux-i686-image = "manylinux_2_28"
 manylinux-pypy_x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 manylinux-pypy_aarch64-image = "manylinux_2_28"

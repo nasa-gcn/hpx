@@ -28,7 +28,7 @@ typedef std::map<Point, Value, Kernel::Less_xyz_3> PointValueMap;
 typedef struct
 {
     PyObject_HEAD
-        Delaunay *delaunay;
+    Delaunay *delaunay;
     PointValueMap *point_value_map;
 } LinearSphericalInterpolator;
 
@@ -123,13 +123,13 @@ static PyObject *LinearSphericalInterpolator_call(
 static const char LinearSphericalInterpolator_name[] = "LinearSphericalInterpolator";
 static PyTypeObject LinearSphericalInterpolator_type{
     .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-                   .tp_basicsize = sizeof(LinearSphericalInterpolator),
+    .tp_name = LinearSphericalInterpolator_name,
+    .tp_basicsize = sizeof(LinearSphericalInterpolator),
     .tp_call = LinearSphericalInterpolator_call,
-    .tp_finalize = LinearSphericalInterpolator_finalize,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_init = LinearSphericalInterpolator_init,
-    .tp_name = LinearSphericalInterpolator_name,
     .tp_new = PyType_GenericNew,
+    .tp_finalize = LinearSphericalInterpolator_finalize,
 };
 
 static void LinearSphericalInterpolator_loop(char **args,

@@ -26,6 +26,11 @@ before-all = [
     "cmake .",
     "make install"
 ]
+manylinux-x86_64-image = "manylinux2_28"
+manylinux-i686-image = "manylinux2_28"
+manylinux-pypy_x86_64-image = "manylinux2_28"
+manylinux-aarch64-image = "manylinux2_28"
+manylinux-pypy_aarch64-image = "manylinux2_28"
 
 [tool.cibuildwheel.linux.config-settings]
 setup-args = "-Dcmake_prefix_path=/usr/local/lib64/cmake"

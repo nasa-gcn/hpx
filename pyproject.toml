@@ -15,7 +15,7 @@ requires = [
 ]
 
 [tool.cibuildwheel]
-skip = "*i686*"
+skip = ["*i686*", "*musl*"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
     "~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake"

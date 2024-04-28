@@ -139,7 +139,7 @@ static void LinearSphericalInterpolator_loop(char **args,
 {
     CGAL::Data_access<PointValueMap> values(
         *LinearSphericalInterpolator_current->point_value_map);
-    #pragma omp parallel for
+
     for (npy_intp i = 0; i < dimensions[0]; i++)
     {
         double xyz[3];

@@ -13,3 +13,31 @@ requires = [
     "meson-python",
     "numpy>=2.0.0rc1",
 ]
+
+[tool.cibuildwheel]
+skip = "*i686*"
+
+[tool.cibuildwheel.linux]
+before-all = [
+    "curl -L https://micro.mamba.pm/install.sh | bash",
+    "~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake"
+]
+# Build wheels for aarch64 under emulation.
+archs = ["auto", "aarch64"]
+
+[tool.cibuildwheel.linux.environment]
+CMAKE = "$HOME/micromamba/bin/cmake"
+
+[tool.cibuildwheel.macos]
+before-all = [
+    "brew install libomp",
+    "curl -L https://micro.mamba.pm/install.sh | bash",
+    "~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake"
+]
+
+[tool.cibuildwheel.macos.environment]
+CMAKE = "$HOME/micromamba/bin/cmake"
+CC = "$(brew --prefix llvm@15)/bin/clang"
+CXX = "$(brew --prefix llvm@15)/bin/clang++"
+CPPFLAGS = "-I$(brew --prefix libomp)/include"
+LDFLAGS = "-L$(brew --prefix libomp)/lib"

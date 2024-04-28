@@ -17,10 +17,10 @@ requires = [
 limited-api = true
 
 [tool.cibuildwheel]
-skip = ["*i686*", "*musl*"]
+skip = ["*i686*", "*musl*", "*win32", "pp*-win_amd64"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
-    "~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake"
+    "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'"
 ]
 
 [tool.cibuildwheel.environment]
@@ -29,3 +29,6 @@ CMAKE = "$HOME/micromamba/bin/cmake"
 [tool.cibuildwheel.linux]
 # Build Linux wheels for aarch64 under emulation.
 archs = ["auto", "aarch64"]
+
+[tool.cibuildwheel.windows.environment]
+CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"

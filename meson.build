@@ -4,7 +4,7 @@ project(
     meson_version: '1.4.0',
     default_options: 'cpp_std=c++14')
 
-py = import('python').find_installation(pure: false, modules:'numpy')
+py = import('python').find_installation(pure: false)
 
 add_project_arguments(
     '-DNPY_TARGET_VERSION=NPY_1_23_API_VERSION',

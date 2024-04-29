@@ -13,6 +13,9 @@ requires = [
     "numpy>=2.0.0rc1",
 ]
 
+[tool.meson-python]
+limited-api = true
+
 [tool.cibuildwheel]
 skip = ["*i686*", "*musl*"]
 before-all = [

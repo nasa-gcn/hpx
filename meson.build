@@ -18,4 +18,9 @@ add_project_dependencies(
 
 py.install_sources('lib/hpx/__init__.py', subdir: 'hpx')
 
-py.extension_module('_core', 'lib/hpx/_core.cpp', subdir: 'hpx', install : true)
+py.extension_module(
+    '_core',
+    'lib/hpx/_core.cpp',
+    limited_api: '3.9',
+    subdir: 'hpx',
+    install: true)

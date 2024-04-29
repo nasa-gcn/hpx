@@ -12,7 +12,9 @@
 #if PY_VERSION_HEX < PyModule_AddObjectRef_VERSION || (defined(Py_LIMITED_API) && Py_LIMITED_API+0 < PyModule_AddObjectRef_VERSION)
 static int PyModule_AddObjectRef(PyObject *mod, const char *name, PyObject *value) {
     int result = PyModule_AddObject(mod, name, value);
-    Py_XDECREF(value);
+    if (result) {
+        Py_XDECREF(value);
+    }
     return result;
 }
 #endif

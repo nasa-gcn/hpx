@@ -121,12 +121,17 @@ static PyObject *LinearSphericalInterpolator_call(
 }
 
 static const char LinearSphericalInterpolator_name[] = "LinearSphericalInterpolator";
+static const char LinearSphericalInterpolator_doc[] = R"(
+Perform natural neighbor linear interpolation on the unit sphere.
+)";
+
 static PyTypeObject LinearSphericalInterpolator_type{
     .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = LinearSphericalInterpolator_name,
     .tp_basicsize = sizeof(LinearSphericalInterpolator),
     .tp_call = LinearSphericalInterpolator_call,
     .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = LinearSphericalInterpolator_doc,
     .tp_init = LinearSphericalInterpolator_init,
     .tp_new = PyType_GenericNew,
     .tp_finalize = LinearSphericalInterpolator_finalize,

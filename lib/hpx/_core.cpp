@@ -7,17 +7,15 @@
 #include <CGAL/Origin.h>
 #include <CGAL/surface_neighbor_coordinates_3.h>
 
-/* PyModule_AddObjectRef was added in Python 3.10. */
-#define PyModule_AddObjectRef_VERSION 0x030a0000
-#if PY_VERSION_HEX < PyModule_AddObjectRef_VERSION || (defined(Py_LIMITED_API) && Py_LIMITED_API+0 < PyModule_AddObjectRef_VERSION)
-static int PyModule_AddObjectRef(PyObject *mod, const char *name, PyObject *value) {
+// PyModule_AddObjectRef was added in Python 3.10.
+// FIXME: Remove when we require Python >= 3.10.
+static int AddObjectRef(PyObject *mod, const char *name, PyObject *value) {
     int result = PyModule_AddObject(mod, name, value);
     if (result) {
         Py_XDECREF(value);
     }
     return result;
 }
-#endif
 
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
@@ -29,7 +27,11 @@ typedef std::map<Point, Value, Kernel::Less_xyz_3> PointValueMap;
 
 typedef struct
 {
-    PyObject_HEAD
+    // Generously sized reserved memory for PyObject_HEAD
+    // (which isn't in the limited API).
+    // FIXME: Remove when we require Python >= 3.12.
+    char reserved[128];
+
     Delaunay *delaunay;
     PointValueMap *point_value_map;
 } LinearSphericalInterpolator;
@@ -95,6 +97,8 @@ static int LinearSphericalInterpolator_init(PyObject *self, PyObject *args, PyOb
             delaunay = new Delaunay(point_list.cbegin(), point_list.cend());
         }
 
+        // FIXME: replace with PyObject_GetTypeData
+        // when we require Python >= 3.12.
         auto obj = reinterpret_cast<LinearSphericalInterpolator *>(self);
         obj->delaunay = delaunay;
         obj->point_value_map = point_value_map;
@@ -110,6 +114,8 @@ fail:
 
 static void LinearSphericalInterpolator_finalize(PyObject *self)
 {
+    // FIXME: replace with PyObject_GetTypeData
+    // when we require Python >= 3.12.
     auto obj = reinterpret_cast<LinearSphericalInterpolator *>(self);
     delete obj->delaunay;
     delete obj->point_value_map;
@@ -118,6 +124,8 @@ static void LinearSphericalInterpolator_finalize(PyObject *self)
 static PyObject *LinearSphericalInterpolator_call(
     PyObject *self, PyObject *args, PyObject *kwargs)
 {
+    // FIXME: replace with PyObject_GetTypeData
+    // when we require Python >= 3.12.
     LinearSphericalInterpolator_current = reinterpret_cast<LinearSphericalInterpolator *>(self);
     return PyObject_Call(LinearSphericalInterpolator_ufunc, args, kwargs);
 }
@@ -127,16 +135,20 @@ static const char LinearSphericalInterpolator_doc[] = R"(
 Perform natural neighbor linear interpolation on the unit sphere.
 )";
 
-static PyTypeObject LinearSphericalInterpolator_type{
-    .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = LinearSphericalInterpolator_name,
-    .tp_basicsize = sizeof(LinearSphericalInterpolator),
-    .tp_call = LinearSphericalInterpolator_call,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = LinearSphericalInterpolator_doc,
-    .tp_init = LinearSphericalInterpolator_init,
-    .tp_new = PyType_GenericNew,
-    .tp_finalize = LinearSphericalInterpolator_finalize,
+static PyType_Spec LinearSphericalInterpolator_typespec = {
+    .name = LinearSphericalInterpolator_name,
+    // FIXME: change to -sizeof(LinearSphericalInterpolator)
+    // when we require Python >= 3.12.
+    .basicsize = sizeof(LinearSphericalInterpolator),
+    .flags = Py_TPFLAGS_DEFAULT,
+    .slots = (PyType_Slot[]){
+        {Py_tp_call, (void *) LinearSphericalInterpolator_call},
+        {Py_tp_doc, (void *) LinearSphericalInterpolator_doc},
+        {Py_tp_init, (void *) LinearSphericalInterpolator_init},
+        {Py_tp_new, (void *) PyType_GenericNew},
+        {Py_tp_finalize, (void *) LinearSphericalInterpolator_finalize},
+        {0, NULL},
+    }
 };
 
 static void LinearSphericalInterpolator_loop(char **args,
@@ -187,9 +199,6 @@ PyMODINIT_FUNC PyInit__core(void)
     import_array();
     import_umath();
 
-    if (PyType_Ready(&LinearSphericalInterpolator_type))
-        return NULL;
-
     LinearSphericalInterpolator_ufunc = PyUFunc_FromFuncAndDataAndSignature(
         LinearSphericalInterpolator_ufunc_loops, NULL,
         const_cast<char *>(LinearSphericalInterpolator_ufunc_types), 1, 1, 1,
@@ -201,9 +210,9 @@ PyMODINIT_FUNC PyInit__core(void)
     if (!module)
         return NULL;
 
-    if (PyModule_AddObjectRef(
+    if (AddObjectRef(
             module, LinearSphericalInterpolator_name,
-            reinterpret_cast<PyObject*>(&LinearSphericalInterpolator_type)))
+            PyType_FromSpec(&LinearSphericalInterpolator_typespec)))
     {
         Py_DECREF(module);
         return NULL;

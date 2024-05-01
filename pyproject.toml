@@ -21,7 +21,9 @@ skip = [
     # Skip these platforms because conda-forge does not support them, and we
     # are using conda to install our external shared library dependencies.
     "*i686*", "*musl*",
-    # Skip these platforms because I haven't worked out the compiler config.
+    # Skip these platforms because the configuration is failing with the error
+    # `Need python for x86_64, but found x86`.
+    # See https://github.com/nasa-gcn/hpx/pull/14
     "*win32",
     # Skip this platform because meson cannot find numpy-config.
     # See https://github.com/nasa-gcn/hpx/pull/12

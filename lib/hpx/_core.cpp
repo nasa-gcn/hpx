@@ -132,7 +132,60 @@ static PyObject *LinearSphericalInterpolator_call(
 
 static const char LinearSphericalInterpolator_name[] = "LinearSphericalInterpolator";
 static const char LinearSphericalInterpolator_doc[] = R"(
-Perform natural neighbor linear interpolation on the unit sphere.
+Piecewise linear interpolation of unstructured data on a unit sphere.
+
+Parameters
+----------
+points : ndarray of floats, shape (npoints, 3)
+    2-D array of the Cartesian coordinates of the sample points, which must
+    be unit vectors. All elements of this array must be finite.
+values : ndarray of floats, shape (npoints)
+    Values of the function at the sample points.
+
+Notes
+-----
+The interpolation method is analogous to SciPy's
+:class:`~scipy.interpolation.LinearNDInterpolator` except that the points lie
+on the surface of a sphere.
+
+The interpolation is done using CGAL by finding the 3D Delaunay triangulation
+of the sample points [1], finding surface natural neighbor coordinates at the
+evaluation points [2], and performing linear interpolation [3].
+
+This method is not as fast as we would like because CGAL constructs a miniature
+2D Delaunay triangulation in the plane tangent to each evaluation point. The
+CGAL 2D Triangluations on the Sphere [4] library may be promising but it does
+not provide a readymade implementation of natural neighbor coordinates.
+
+References
+----------
+.. [1] https://doc.cgal.org/latest/Triangulation_3/index.html#Triangulation_3Delaunay
+.. [2] https://doc.cgal.org/latest/Interpolation/index.html#secsurface
+.. [3] https://doc.cgal.org/latest/Interpolation/index.html#InterpolationLinearPrecisionInterpolation
+.. [4] https://doc.cgal.org/latest/Triangulation_on_sphere_2/index.html
+
+Examples
+--------
+>>> import numpy as np
+>>> from astropy.coordinates import uniform_spherical_random_surface
+>>> np.random.seed(1234)  # make the output reproducible
+>>> npoints = 100
+>>> points = uniform_spherical_random_surface(npoints).to_cartesian().xyz.value.T
+>>> points
+array([[ 0.30367159,  0.78890962,  0.53423326],
+       [-0.65451629, -0.63115799,  0.41623072],
+       ...
+       [-0.22006045, -0.39686604,  0.89110647]])
+>>> values = np.random.uniform(-1, 1, npoints)
+values
+array([ 0.95807764,  0.76246449,  0.25536384,  0.86097307,  0.44957991,
+        ...
+       -0.33998522,  0.21335043,  0.64431958,  0.25593013, -0.76415388])
+>>> interp = LinearSphericalInterpolator(points, values)
+>>> eval_points = uniform_spherical_random_surface(10).to_cartesian().xyz.value.T
+>>> interp(eval_points)
+array([-0.05681123, -0.14872424, -0.15398783,  0.24820993,  0.6796055 ,
+        0.25451712, -0.08408354,  0.20886784,  0.22627028,  0.08563897])
 )";
 
 static PyType_Spec LinearSphericalInterpolator_typespec = {

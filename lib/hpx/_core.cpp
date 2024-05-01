@@ -74,7 +74,7 @@ static int LinearSphericalInterpolator_init(PyObject *self, PyObject *args, PyOb
         if (n != PyArray_DIM(values_array, 0))
             FAIL("points and values must have the same length");
         if (PyArray_DIM(points_array, 1) != 3)
-            FAIL("points must have shape (n, 3)");
+            FAIL("points must have shape (npoints, 3)");
 
         for (npy_intp i = 0; i < n; i++)
             for (npy_intp j = 0; j < 3; j++)

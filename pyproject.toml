@@ -38,9 +38,6 @@ skip = [
     # Skip PyPy because SciPy doesn't distribute wheels for it.
     # See https://github.com/mesonbuild/meson-python/issues/624
     "pp*",
-    # Skip Windows because the wheels are not yet relocatable.
-    # See https://github.com/nasa-gcn/hpx/pull/15
-    "*win*",
 ]
 test-extras = ["test"]
 test-command = ["pytest {project}/test"]
@@ -55,6 +52,13 @@ CMAKE = "$HOME/micromamba/bin/cmake"
 [tool.cibuildwheel.linux]
 # Build Linux wheels for aarch64 under emulation.
 archs = ["auto", "aarch64"]
+
+[tool.cibuildwheel.windows]
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --add-path C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin -w {dest_dir} {wheel}"
+# Meson support for the Python limited API on Windows is broken.
+# See https://github.com/mesonbuild/meson/issues/13167
+config-settings.setup-args = "-Dpython.allow_limited_api=false"
 
 [tool.cibuildwheel.windows.environment]
 CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"

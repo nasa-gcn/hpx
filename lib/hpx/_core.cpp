@@ -6,128 +6,212 @@
 #include <CGAL/interpolation_functions.h>
 #include <CGAL/Origin.h>
 #include <CGAL/surface_neighbor_coordinates_3.h>
-
-// PyModule_AddObjectRef was added in Python 3.10.
-// FIXME: Remove when we require Python >= 3.10.
-static int AddObjectRef(PyObject *mod, const char *name, PyObject *value) {
-    int result = PyModule_AddObject(mod, name, value);
-    if (result) {
-        Py_XDECREF(value);
-    }
-    return result;
-}
-
+#include <string>
+#include <valarray>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Delaunay_triangulation_3<Kernel, CGAL::Fast_location> Delaunay;
 typedef Kernel::Point_3 Point;
 typedef Kernel::Vector_3 Vector;
-typedef Kernel::FT Value;
+typedef Kernel::FT Scalar;
+typedef std::valarray<Scalar> Value;
 typedef std::map<Point, Value, Kernel::Less_xyz_3> PointValueMap;
 
-typedef struct
+struct LinearSphericalInterpolator
 {
-    // Generously sized reserved memory for PyObject_HEAD
-    // (which isn't in the limited API).
-    // FIXME: Remove when we require Python >= 3.12.
-    char reserved[128];
+    std::vector<npy_intp> value_dims;
+    npy_intp value_size;
+    void *data[1];
+    Delaunay delaunay;
+    PointValueMap point_value_map;
+};
 
-    Delaunay *delaunay;
-    PointValueMap *point_value_map;
-} LinearSphericalInterpolator;
-
-static PyObject *LinearSphericalInterpolator_ufunc;
-static thread_local LinearSphericalInterpolator *LinearSphericalInterpolator_current;
-
-static int LinearSphericalInterpolator_init(PyObject *self, PyObject *args, PyObject *kwargs)
+static PyArrayObject *ensure2d(PyArrayObject *arrayobject)
 {
-#define FAIL(msg)                                 \
-    do                                            \
-    {                                             \
-        PyErr_SetString(PyExc_ValueError, (msg)); \
-        goto fail;                                \
-    } while (0)
-#define GET_POINT(i, j) *(double *)PyArray_GETPTR2(points_array, (i), (j))
-#define GET_VALUE(i) *(double *)PyArray_GETPTR1(values_array, (i))
+    PyArrayObject *result = NULL;
+    if (arrayobject)
+    {
+        npy_intp dims[] = {PyArray_DIM(arrayobject, 0), -1};
+        PyArray_Dims newshape = {dims, 2};
+        result = reinterpret_cast<PyArrayObject *>(
+            PyArray_Newshape(arrayobject, &newshape, NPY_ANYORDER));
+        Py_DECREF(arrayobject);
+    }
+    return result;
+}
 
-    int result = -1;
+template<class C>
+static void copy_output(std::vector<npy_intp>::const_iterator value_dims_begin,
+                        const std::vector<npy_intp>::const_iterator &value_dims_end,
+                        C &results,
+                        const npy_intp *strides,
+                        char *out)
+{
+    if (value_dims_begin == value_dims_end) {
+        *(double*)out = *results++;
+    } else {
+        for (npy_intp i = 0; i < *value_dims_begin; i ++, out += *strides) {
+            copy_output(value_dims_begin + 1, value_dims_end, results, strides + 1, out);
+        }
+    }
+}
+
+static void LinearSphericalInterpolator_loop(char **args,
+                                             const npy_intp *dimensions,
+                                             const npy_intp *steps,
+                                             void *data)
+{
+    auto interp = reinterpret_cast<LinearSphericalInterpolator*>(data);
+    CGAL::Data_access<PointValueMap> values(interp->point_value_map);
+    char *out = args[1];
+
+    for (npy_intp i = 0; i < dimensions[0]; i++, out += steps[1])
+    {
+        Value results(NAN, interp->value_size);
+        double xyz[3];
+        for (npy_intp j = 0; j < 3; j++)
+        {
+            double component = *(double *)&args[0][i * steps[0] + j * steps[2]];
+            if (!std::isfinite(component)) goto next;
+            xyz[j] = component;
+        }
+
+        {
+            Point point(xyz[0], xyz[1], xyz[2]);
+            Vector normal(point - CGAL::ORIGIN);
+            std::vector<std::pair<Point, Scalar>> coords;
+            auto norm = CGAL::surface_neighbor_coordinates_3(
+                            interp->delaunay,
+                            point, normal, std::back_inserter(coords)).second;
+            results = CGAL::linear_interpolation(
+                coords.cbegin(), coords.cend(), norm, values);
+        }
+
+next:
+        if (interp->value_size > 0)
+        {
+            auto result_iterator = std::begin(results);
+            copy_output(interp->value_dims.cbegin(), interp->value_dims.cend(),
+                        result_iterator, steps + 3, out);
+        }
+    }
+}
+
+static void LinearSphericalInterpolator_destroy(PyObject *capsule)
+{
+    delete reinterpret_cast<LinearSphericalInterpolator *>(
+        PyCapsule_GetPointer(capsule, NULL));
+}
+
+static const PyUFuncGenericFunction LinearSphericalInterpolator_ufunc_loops[] = {
+    LinearSphericalInterpolator_loop};
+static const char LinearSphericalInterpolator_ufunc_types[] = {NPY_DOUBLE, NPY_DOUBLE};
+
+static PyObject *LinearSphericalInterpolator_init(PyObject *module, PyObject *args, PyObject *kwargs)
+{
+#define FAIL(msg) do {PyErr_SetString(PyExc_ValueError, (msg)); goto fail;} while(0)
+#define GET_DOUBLE_2D(array, i, j) *(double *)PyArray_GETPTR2((array), (i), (j))
+#define GET_POINT(i, j) GET_DOUBLE_2D((points_array), (i), (j))
+#define GET_VALUE(i, j) GET_DOUBLE_2D((values_array), (i), (j))
+
     static const char *kws[] = {"points", "values", NULL};
-    PyObject *points, *values;
+    PyObject *points, *values, *capsule, *result = NULL;
     PyArrayObject *points_array = NULL, *values_array = NULL;
+    LinearSphericalInterpolator *interp;
+    std::vector<npy_intp> value_dims;
+    npy_intp npoints, nvalues;
+    std::string signature;
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs, "OO", const_cast<char **>(kws), &points, &values))
         goto fail;
 
-    points_array = reinterpret_cast<PyArrayObject *>(PyArray_FROMANY(
-        points, NPY_DOUBLE, 2, 2, NPY_ARRAY_ALIGNED | NPY_ARRAY_NOTSWAPPED));
+    points_array = reinterpret_cast<PyArrayObject *>(
+        PyArray_FROMANY(points, NPY_DOUBLE, 2, 2,
+                        NPY_ARRAY_ALIGNED | NPY_ARRAY_NOTSWAPPED));
     if (!points_array)
         goto fail;
-    values_array = reinterpret_cast<PyArrayObject *>(PyArray_FROMANY(
-        values, NPY_DOUBLE, 1, 1, NPY_ARRAY_ALIGNED | NPY_ARRAY_NOTSWAPPED));
+
+    values_array = reinterpret_cast<PyArrayObject *>(
+        PyArray_FROMANY(values, NPY_DOUBLE, 1, 0,
+                        NPY_ARRAY_ALIGNED | NPY_ARRAY_NOTSWAPPED));
     if (!values_array)
         goto fail;
 
+    npoints = PyArray_DIM(points_array, 0);
+    if (npoints != PyArray_DIM(values_array, 0))
+        FAIL("points and values must have the same length");
+    if (PyArray_DIM(points_array, 1) != 3)
+        FAIL("points must have shape (npoints, 3)");
+
+    for (int i = 1; i < PyArray_NDIM(values_array); i ++)
+        value_dims.push_back(PyArray_DIM(values_array, i));
+    values_array = ensure2d(values_array);
+    if (!values_array)
+        goto fail;
+    nvalues = PyArray_DIM(values_array, 1);
+
+    for (npy_intp i = 0; i < npoints; i++)
+        for (npy_intp j = 0; j < 3; j++)
+            if (!std::isfinite(GET_POINT(i, j)))
+                FAIL("all elements of points must be finite");
+
+    Py_BEGIN_ALLOW_THREADS
     {
-        npy_intp n = PyArray_DIM(points_array, 0);
-
-        if (n != PyArray_DIM(values_array, 0))
-            FAIL("points and values must have the same length");
-        if (PyArray_DIM(points_array, 1) != 3)
-            FAIL("points must have shape (npoints, 3)");
-
-        for (npy_intp i = 0; i < n; i++)
-            for (npy_intp j = 0; j < 3; j++)
-                if (!std::isfinite(GET_POINT(i, j)))
-                    FAIL("all elements of points must be finite");
-
-        Py_BEGIN_ALLOW_THREADS
-        PointValueMap *point_value_map = new std::map<Point, Value, Kernel::Less_xyz_3>();
-        Delaunay *delaunay;
+        interp = new LinearSphericalInterpolator{value_dims, nvalues};
+        interp->data[0] = interp;
+        std::vector<Point> point_list;
+        point_list.reserve(npoints);
+        for (npy_intp i = 0; i < npoints; i++)
         {
-            std::vector<Point> point_list;
-            point_list.reserve(n);
-            for (npy_intp i = 0; i < n; i++)
+            Point point(GET_POINT(i, 0), GET_POINT(i, 1), GET_POINT(i, 2));
+            Value value(nvalues);
+            for (npy_intp j = 0; j < nvalues; j++)
             {
-                Point point(GET_POINT(i, 0), GET_POINT(i, 1), GET_POINT(i, 2));
-                Value value = GET_VALUE(i);
-                point_list.push_back(point);
-                point_value_map->insert(std::make_pair(point, value));
+                value[j] = GET_VALUE(i, j);
             }
-            delaunay = new Delaunay(point_list.cbegin(), point_list.cend());
+            point_list.push_back(point);
+            interp->point_value_map.insert(std::make_pair(point, value));
         }
+        interp->delaunay.insert(point_list.cbegin(), point_list.cend());
+    }
+    Py_END_ALLOW_THREADS
 
-        // FIXME: replace with PyObject_GetTypeData
-        // when we require Python >= 3.12.
-        auto obj = reinterpret_cast<LinearSphericalInterpolator *>(self);
-        obj->delaunay = delaunay;
-        obj->point_value_map = point_value_map;
-        Py_END_ALLOW_THREADS
+    capsule = PyCapsule_New(interp, NULL, LinearSphericalInterpolator_destroy);
+    if (!capsule)
+    {
+        delete interp;
+        goto fail;
     }
 
-    result = 0;
+    signature = "(3)->(";
+    {
+        auto it = value_dims.cbegin();
+        auto end = value_dims.cend();
+        if (it != end)
+            signature += std::to_string(*it++);
+        for (; it != end; it++) {
+            signature += ',';
+            signature += std::to_string(*it);
+        }
+    }
+    signature += ')';
+
+    result = PyUFunc_FromFuncAndDataAndSignature(
+        const_cast<PyUFuncGenericFunction*>(LinearSphericalInterpolator_ufunc_loops),
+        interp->data, const_cast<char*>(LinearSphericalInterpolator_ufunc_types),
+        1, 1, 1, PyUFunc_None, "LinearSphericalInterpolator_call", NULL, 0,
+        signature.c_str());
+    if (!result)
+    {
+        Py_DECREF(capsule);
+        goto fail;
+    }
+    reinterpret_cast<PyUFuncObject*>(result)->obj = capsule;
 fail:
     Py_XDECREF(points_array);
     Py_XDECREF(values_array);
     return result;
-}
-
-static void LinearSphericalInterpolator_finalize(PyObject *self)
-{
-    // FIXME: replace with PyObject_GetTypeData
-    // when we require Python >= 3.12.
-    auto obj = reinterpret_cast<LinearSphericalInterpolator *>(self);
-    delete obj->delaunay;
-    delete obj->point_value_map;
-}
-
-static PyObject *LinearSphericalInterpolator_call(
-    PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    // FIXME: replace with PyObject_GetTypeData
-    // when we require Python >= 3.12.
-    LinearSphericalInterpolator_current = reinterpret_cast<LinearSphericalInterpolator *>(self);
-    return PyObject_Call(LinearSphericalInterpolator_ufunc, args, kwargs);
 }
 
 static const char LinearSphericalInterpolator_doc[] = R"(
@@ -138,8 +222,9 @@ Parameters
 points : ndarray of floats, shape (npoints, 3)
     2-D array of the Cartesian coordinates of the sample points, which must
     be unit vectors. All elements of this array must be finite.
-values : ndarray of floats, shape (npoints)
-    Values of the function at the sample points.
+values : ndarray of floats, shape (npoints, ...)
+    Values of the function at the sample points. The length along the first
+    dimension must be the same as the length of ``points``.
 
 Notes
 -----
@@ -187,88 +272,16 @@ array([-0.05681123, -0.14872424, -0.15398783,  0.24820993,  0.6796055 ,
         0.25451712, -0.08408354,  0.20886784,  0.22627028,  0.08563897])
 )";
 
-static PyType_Spec LinearSphericalInterpolator_typespec = {
-    .name = "hpx._core.LinearSphericalInterpolator",
-    // FIXME: change to -sizeof(LinearSphericalInterpolator)
-    // when we require Python >= 3.12.
-    .basicsize = sizeof(LinearSphericalInterpolator),
-    .flags = Py_TPFLAGS_DEFAULT,
-    .slots = (PyType_Slot[]){
-        {Py_tp_call, (void *) LinearSphericalInterpolator_call},
-        {Py_tp_doc, (void *) LinearSphericalInterpolator_doc},
-        {Py_tp_init, (void *) LinearSphericalInterpolator_init},
-        {Py_tp_new, (void *) PyType_GenericNew},
-        {Py_tp_finalize, (void *) LinearSphericalInterpolator_finalize},
-        {0, NULL},
-    }
-};
-
-static void LinearSphericalInterpolator_loop(char **args,
-                                             const npy_intp *dimensions,
-                                             const npy_intp *steps,
-                                             void *NPY_UNUSED(data))
-{
-    CGAL::Data_access<PointValueMap> values(
-        *LinearSphericalInterpolator_current->point_value_map);
-
-    for (npy_intp i = 0; i < dimensions[0]; i++)
-    {
-        double xyz[3];
-        double result = NAN;
-        for (npy_intp j = 0; j < 3; j++)
-        {
-            double component = *(double *)&args[0][i * steps[0] + j * steps[2]];
-            if (!std::isfinite(component)) goto next;
-            xyz[j] = component;
-        }
-
-        {
-            Point point(xyz[0], xyz[1], xyz[2]);
-            Vector normal(point - CGAL::ORIGIN);
-            std::vector<std::pair<Point, Value>> coords;
-            auto norm = CGAL::surface_neighbor_coordinates_3(
-                            *LinearSphericalInterpolator_current->delaunay,
-                            point, normal, std::back_inserter(coords))
-                            .second;
-            result = CGAL::linear_interpolation(
-                coords.begin(), coords.end(), norm, values);
-        }
-next:
-        *(double*)&args[1][i * steps[1]] = result;
-    }
-}
-
-static PyUFuncGenericFunction LinearSphericalInterpolator_ufunc_loops[] = {LinearSphericalInterpolator_loop};
-static const char LinearSphericalInterpolator_ufunc_types[] = {NPY_DOUBLE, NPY_DOUBLE};
-
 static PyModuleDef moduledef = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "_core",
-};
+    .m_methods = (PyMethodDef[]){
+        {"LinearSphericalInterpolator", (PyCFunction)LinearSphericalInterpolator_init, METH_VARARGS, LinearSphericalInterpolator_doc},
+        {}}};
 
 PyMODINIT_FUNC PyInit__core(void)
 {
     import_array();
-    import_umath();
-
-    LinearSphericalInterpolator_ufunc = PyUFunc_FromFuncAndDataAndSignature(
-        LinearSphericalInterpolator_ufunc_loops, NULL,
-        const_cast<char *>(LinearSphericalInterpolator_ufunc_types), 1, 1, 1,
-        PyUFunc_None, "LinearSphericalInterpolator.__call__", NULL, 0, "(3)->()");
-    if (!LinearSphericalInterpolator_ufunc)
-        return NULL;
-
-    PyObject *module = PyModule_Create(&moduledef);
-    if (!module)
-        return NULL;
-
-    if (AddObjectRef(
-            module, "LinearSphericalInterpolator",
-            PyType_FromSpec(&LinearSphericalInterpolator_typespec)))
-    {
-        Py_DECREF(module);
-        return NULL;
-    }
-
-    return module;
+    import_ufunc();
+    return PyModule_Create(&moduledef);
 }

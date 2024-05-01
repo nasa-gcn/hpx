@@ -17,7 +17,13 @@ requires = [
 limited-api = true
 
 [tool.cibuildwheel]
-skip = ["*i686*", "*musl*", "*win32", "pp*-win_amd64"]
+skip = [
+    # Skip these platforms because conda-forge does not support them, and we
+    # are using conda to install our external shared library dependencies.
+    "*i686*", "*musl*",
+    # Skip these platforms because I haven't worked out the compiler config.
+    "*win32", "pp*-win_amd64",
+]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
     "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'"

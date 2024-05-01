@@ -6,6 +6,13 @@ dependencies = [
 requires-python = ">=3.9"
 version = "0.0.1"
 
+[project.optional-dependencies]
+test = [
+    "astropy",
+    "pytest",
+    "scipy",
+]
+
 [build-system]
 build-backend = 'mesonpy'
 requires = [
@@ -28,7 +35,16 @@ skip = [
     # Skip this platform because meson cannot find numpy-config.
     # See https://github.com/nasa-gcn/hpx/pull/12
     "pp*-win_amd64",
+    # Skip PyPy because it doesn't support the Python limited API, and
+    # meson-python doesn't give us fine-grained control over limited-api as
+    # a build config setting. See https://github.com/mesonbuild/meson-python/issues/624
+    "pp*",
+    # Skip Windows because the wheels are not yet relocatable.
+    # See https://github.com/nasa-gcn/hpx/pull/15
+    "*win*",
 ]
+test-extras = ["test"]
+test-command = ["pytest {project}/test"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
     "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'"

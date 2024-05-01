@@ -16,7 +16,10 @@ add_project_dependencies(
     dependency('CGAL'),
     language: 'cpp')
 
-py.install_sources('lib/hpx/__init__.py', subdir: 'hpx')
+py.install_sources(
+    'lib/hpx/__init__.py',
+    'lib/hpx/_core.pyi',
+    subdir: 'hpx')
 
 py.extension_module(
     '_core',

@@ -35,9 +35,8 @@ skip = [
     # Skip this platform because meson cannot find numpy-config.
     # See https://github.com/nasa-gcn/hpx/pull/12
     "pp*-win_amd64",
-    # Skip PyPy because it doesn't support the Python limited API, and
-    # meson-python doesn't give us fine-grained control over limited-api as
-    # a build config setting. See https://github.com/mesonbuild/meson-python/issues/624
+    # Skip PyPy because SciPy doesn't distribute wheels for it.
+    # See https://github.com/mesonbuild/meson-python/issues/624
     "pp*",
     # Skip Windows because the wheels are not yet relocatable.
     # See https://github.com/nasa-gcn/hpx/pull/15
@@ -59,3 +58,8 @@ archs = ["auto", "aarch64"]
 
 [tool.cibuildwheel.windows.environment]
 CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"
+
+# PyPy does not support the Python limited API.
+[[tool.cibuildwheel.overrides]]
+select = "pp*"
+config-settings.setup-args = "-Dpython.allow_limited_api=false"

@@ -38,7 +38,7 @@ def test_invalid(points, values, message):
         LinearSphericalInterpolator(points, values)
 
 
-def astropy_sph_harm(l: int, m: int, points: BaseRepresentation):
+def astropy_sph_harm(l: int, m: int, points: BaseRepresentation):  # noqa: E741
     points = points.represent_as(PhysicsSphericalRepresentation)
     theta = points.theta.to_value(u.rad)
     phi = points.phi.to_value(u.rad)
@@ -49,8 +49,8 @@ def astropy_to_xyz(points: BaseRepresentation):
     return points.to_cartesian().xyz.value.T
 
 
-@pytest.mark.parametrize(["l", "m"], [[l, m] for l in range(3) for m in range(l + 1)])
-def test_smooth_function(l: int, m: int):
+@pytest.mark.parametrize(["l", "m"], [[l, m] for l in range(3) for m in range(l + 1)])  # noqa: E741
+def test_smooth_function(l: int, m: int):  # noqa: E741
     npoints = 100_000
     eval_npoints = 20
 

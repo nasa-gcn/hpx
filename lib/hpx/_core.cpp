@@ -130,7 +130,6 @@ static PyObject *LinearSphericalInterpolator_call(
     return PyObject_Call(LinearSphericalInterpolator_ufunc, args, kwargs);
 }
 
-static const char LinearSphericalInterpolator_name[] = "LinearSphericalInterpolator";
 static const char LinearSphericalInterpolator_doc[] = R"(
 Piecewise linear interpolation of unstructured data on a unit sphere.
 
@@ -189,7 +188,7 @@ array([-0.05681123, -0.14872424, -0.15398783,  0.24820993,  0.6796055 ,
 )";
 
 static PyType_Spec LinearSphericalInterpolator_typespec = {
-    .name = LinearSphericalInterpolator_name,
+    .name = "hpx._core.LinearSphericalInterpolator",
     // FIXME: change to -sizeof(LinearSphericalInterpolator)
     // when we require Python >= 3.12.
     .basicsize = sizeof(LinearSphericalInterpolator),
@@ -264,7 +263,7 @@ PyMODINIT_FUNC PyInit__core(void)
         return NULL;
 
     if (AddObjectRef(
-            module, LinearSphericalInterpolator_name,
+            module, "LinearSphericalInterpolator",
             PyType_FromSpec(&LinearSphericalInterpolator_typespec)))
     {
         Py_DECREF(module);

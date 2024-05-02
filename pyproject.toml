@@ -24,6 +24,7 @@ requires = [
 limited-api = true
 
 [tool.cibuildwheel]
+build-verbosity = 1
 skip = [
     # Skip these platforms because conda-forge does not support them, and we
     # are using conda to install our external shared library dependencies.

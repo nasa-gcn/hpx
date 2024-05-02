@@ -46,7 +46,7 @@ test-extras = ["test"]
 test-command = ["pytest {project}/test"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
-    "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'"
+    "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'",
 ]
 
 [tool.cibuildwheel.environment]

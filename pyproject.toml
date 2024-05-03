@@ -33,7 +33,7 @@ test = [
 [build-system]
 build-backend = 'mesonpy'
 requires = [
-    "meson-python",
+    "meson-python>=1.5.0",
     "numpy>=2.0.0",
 ]
 
@@ -77,8 +77,6 @@ CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"
 
 [[tool.cibuildwheel.overrides]]
 select = "pp*"
-# PyPy does not support the Python limited API.
-config-settings.setup-args = "-Dpython.allow_limited_api=false"
 # We can't run our full pytest test suite on PyPy wheels
 # because Scipy doesn't distributes PyPy wheels.
 # See https://github.com/scipy/scipy/issues/17974

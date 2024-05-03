@@ -27,3 +27,33 @@ jobs:
 
       - name: mypy
         run: mypy . --ignore-missing-imports
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install apt packages
+        run: sudo apt-get install -y libcgal-dev
+
+      - name: Install package
+        run: |
+          pip install gcovr ninja pytest-cov
+          python -c 'import subprocess; import tomllib; subprocess.run(["pip", "install", *tomllib.load(open("pyproject.toml", "rb"))["build-system"]["requires"]], check=True)'
+          pip install -ve .[test] --no-build-isolation -Csetup-args=-Db_coverage=true
+
+      - name: Run tests
+        run: pytest --benchmark-disable --cov test
+
+      - name: Analyze native code coverage
+        run: gcovr --json coverage.json
+
+      - name: Upload to Codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

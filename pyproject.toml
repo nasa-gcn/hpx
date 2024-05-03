@@ -67,5 +67,6 @@ select = "pp*"
 # PyPy does not support the Python limited API.
 config-settings.setup-args = "-Dpython.allow_limited_api=false"
 # We can't test PyPy wheels because Scipy doesn't distributes PyPy wheels.
+# See https://github.com/scipy/scipy/issues/17974
 test-extras = []
 test-command = []

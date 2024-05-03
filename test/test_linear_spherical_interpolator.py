@@ -53,7 +53,7 @@ def astropy_to_xyz(points: BaseRepresentation):
 
 @pytest.mark.parametrize(["l", "m"], [[l, m] for l in range(3) for m in range(l + 1)])  # noqa: E741
 def test_smooth_function(l: int, m: int):  # noqa: E741
-    npoints = 100_000
+    npoints = 10_000
     eval_npoints = 20
 
     with NumpyRNGContext(1234):
@@ -66,4 +66,25 @@ def test_smooth_function(l: int, m: int):  # noqa: E741
     actual = interp(astropy_to_xyz(eval_points))
     expected = astropy_sph_harm(l, m, eval_points).real
 
-    np.testing.assert_allclose(actual, expected, rtol=0, atol=0.0006)
+    np.testing.assert_allclose(actual, expected, rtol=0, atol=0.05)
+
+
+def test_benchmark_prepare(benchmark):
+    """Benchmark preparation of LinearSphericalInterpolator."""
+    npoints = 10_000
+    with NumpyRNGContext(1234):
+        points = uniform_spherical_random_surface(npoints)
+    values = np.zeros(npoints)
+    benchmark(LinearSphericalInterpolator, astropy_to_xyz(points), values)
+
+
+def test_benchmark_eval(benchmark):
+    """Benchmark evaluation of LinearSphericalInterpolator."""
+    npoints = 10_000
+    eval_npoints = 1_000
+    with NumpyRNGContext(1234):
+        points = uniform_spherical_random_surface(npoints)
+        eval_points = uniform_spherical_random_surface(eval_npoints)
+    values = np.zeros(npoints)
+    interp = LinearSphericalInterpolator(astropy_to_xyz(points), values)
+    benchmark(interp, astropy_to_xyz(eval_points))

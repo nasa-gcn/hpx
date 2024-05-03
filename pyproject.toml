@@ -10,6 +10,7 @@ version = "0.0.1"
 test = [
     "astropy",
     "pytest",
+    "pytest-benchmark",
     "scipy",
 ]
 
@@ -38,7 +39,7 @@ skip = [
     "pp*-win_amd64",
 ]
 test-extras = ["test"]
-test-command = ["pytest {project}/test"]
+test-command = ["pytest {project}/test --benchmark-disable"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
     "bash -c '~/.local/bin/micromamba install -y --prefix ~/micromamba cgal-cpp cmake'",

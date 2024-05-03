@@ -276,7 +276,7 @@ static PyModuleDef moduledef = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "_core",
     .m_methods = (PyMethodDef[]){
-        {"LinearSphericalInterpolator", (PyCFunction)LinearSphericalInterpolator_init, METH_VARARGS, LinearSphericalInterpolator_doc},
+        {"LinearSphericalInterpolator", (PyCFunction)LinearSphericalInterpolator_init, METH_VARARGS | METH_KEYWORDS, LinearSphericalInterpolator_doc},
         {}}};
 
 PyMODINIT_FUNC PyInit__core(void)

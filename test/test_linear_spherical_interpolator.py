@@ -38,7 +38,7 @@ def test_invalid(points, values, message):
         LinearSphericalInterpolator(points, values)
 
 
-def astropy_sph_harm(l: int, m: int, points: BaseRepresentation):  # noqa: E741
+def astropy_sph_harm(l, m, points: BaseRepresentation):  # noqa: E741
     points = points.represent_as(PhysicsSphericalRepresentation)
     theta = points.theta.to_value(u.rad)
     phi = points.phi.to_value(u.rad)
@@ -56,7 +56,7 @@ def complex_to_components(array):
 
 
 @pytest.mark.parametrize(["l", "m"], [[l, m] for l in range(3) for m in range(l + 1)])  # noqa: E741
-def test_scalar_function(l: int, m: int):  # noqa: E741
+def test_scalar_function(l, m):  # noqa: E741
     npoints = 10_000
     eval_npoints = 20
 
@@ -74,7 +74,7 @@ def test_scalar_function(l: int, m: int):  # noqa: E741
 
 
 @pytest.mark.parametrize("l", range(3))  # noqa: E741
-def test_vector_function(l: int):  # noqa: E741
+def test_vector_function(l):  # noqa: E741
     npoints = 10_000
     eval_npoints = 20
 

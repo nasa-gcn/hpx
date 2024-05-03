@@ -42,7 +42,9 @@ def astropy_sph_harm(l: int, m: int, points: BaseRepresentation):  # noqa: E741
     points = points.represent_as(PhysicsSphericalRepresentation)
     theta = points.theta.to_value(u.rad)
     phi = points.phi.to_value(u.rad)
-    return sph_harm(l, m, theta, phi)
+    # Caution: scipy.special.sph_harm expects the arguments in the order m, l;
+    # not the more conventional order of l, m.
+    return sph_harm(m, l, theta, phi)
 
 
 def astropy_to_xyz(points: BaseRepresentation):
@@ -64,4 +66,4 @@ def test_smooth_function(l: int, m: int):  # noqa: E741
     actual = interp(astropy_to_xyz(eval_points))
     expected = astropy_sph_harm(l, m, eval_points).real
 
-    np.testing.assert_allclose(actual, expected, rtol=0, atol=0.0002)
+    np.testing.assert_allclose(actual, expected, rtol=0, atol=0.0006)

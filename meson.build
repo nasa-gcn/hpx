@@ -1,7 +1,7 @@
 project(
     'hpx',
     'cpp',
-    meson_version: '1.4.0',
+    meson_version: '>=1.4.0',
     default_options: 'cpp_std=c++14')
 
 py = import('python').find_installation(pure: false)

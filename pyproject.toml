@@ -1,5 +1,18 @@
 [project]
 name = "hpx"
+description = "Multiresolution HEALPix sampling and adaptive grids"
+readme = "README.md"
+authors = [ { name = "Leo Singer", email = "leo.p.singer@nasa.gov" } ]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
 dependencies = [
     "numpy>=1.23, <2",
 ]

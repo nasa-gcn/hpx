@@ -60,6 +60,20 @@ def complex_to_components(array):
     return np.stack((array.real, array.imag), axis=-1)
 
 
+def test_nans():
+    npoints = 100
+    eval_npoints = 20
+
+    with NumpyRNGContext(1234):
+        points = uniform_spherical_random_surface(npoints)
+    eval_points = np.full((eval_npoints, 3), np.nan)
+
+    interp = LinearSphericalInterpolator(astropy_to_xyz(points), np.zeros(npoints))
+    actual = interp(eval_points)
+    expected = np.full(eval_npoints, np.nan)
+    np.testing.assert_equal(actual, expected)
+
+
 @pytest.mark.parametrize(["l", "m"], [[l, m] for l in range(3) for m in range(l + 1)])  # noqa: E741
 def test_scalar_function(l, m):  # noqa: E741
     npoints = 10_000

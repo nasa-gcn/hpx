@@ -38,6 +38,11 @@ def test_invalid(points, values, message):
         LinearSphericalInterpolator(points, values)
 
 
+def test_wrong_number_of_args():
+    with pytest.raises(TypeError, match="function missing required argument"):
+        LinearSphericalInterpolator()
+
+
 def astropy_sph_harm(l, m, points: BaseRepresentation):  # noqa: E741
     points = points.represent_as(PhysicsSphericalRepresentation)
     theta = points.theta.to_value(u.rad)

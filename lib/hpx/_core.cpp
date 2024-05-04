@@ -232,21 +232,23 @@ The interpolation method is analogous to SciPy's
 :class:`~scipy.interpolate.LinearNDInterpolator` except that the points lie
 on the surface of a sphere.
 
-The interpolation is done using CGAL by finding the 3D Delaunay triangulation
-of the sample points [1], finding surface natural neighbor coordinates at the
-evaluation points [2], and performing linear interpolation [3].
+The interpolation is done using CGAL [1] by finding the 3D Delaunay
+triangulation of the sample points [2], finding surface natural neighbor
+coordinates at the evaluation points [3], and performing linear
+interpolation [4].
 
 This method is not as fast as we would like because CGAL constructs a miniature
 2D Delaunay triangulation in the plane tangent to each evaluation point. The
-CGAL 2D Triangluations on the Sphere [4] library may be promising but it does
+CGAL 2D Triangluations on the Sphere [5] library may be promising but it does
 not provide a readymade implementation of natural neighbor coordinates.
 
 References
 ----------
-.. [1] https://doc.cgal.org/latest/Triangulation_3/index.html#Triangulation_3Delaunay
-.. [2] https://doc.cgal.org/latest/Interpolation/index.html#secsurface
-.. [3] https://doc.cgal.org/latest/Interpolation/index.html#InterpolationLinearPrecisionInterpolation
-.. [4] https://doc.cgal.org/latest/Triangulation_on_sphere_2/index.html
+.. [1] https://www.cgal.org
+.. [2] https://doc.cgal.org/latest/Triangulation_3/index.html#Triangulation_3Delaunay
+.. [3] https://doc.cgal.org/latest/Interpolation/index.html#secsurface
+.. [4] https://doc.cgal.org/latest/Interpolation/index.html#InterpolationLinearPrecisionInterpolation
+.. [5] https://doc.cgal.org/latest/Triangulation_on_sphere_2/index.html
 
 Examples
 --------

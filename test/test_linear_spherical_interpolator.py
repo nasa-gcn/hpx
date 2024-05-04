@@ -14,6 +14,13 @@ import pytest
 from hpx._core import LinearSphericalInterpolator
 
 
+@pytest.fixture(autouse=True)
+def seed():
+    """Fix Numpy random seed during each test for reproducibility."""
+    with NumpyRNGContext(1234):
+        yield
+
+
 @pytest.mark.parametrize(
     ["points", "values", "message"],
     [
@@ -64,8 +71,7 @@ def test_nans():
     npoints = 100
     eval_npoints = 20
 
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
+    points = uniform_spherical_random_surface(npoints)
     eval_points = np.full((eval_npoints, 3), np.nan)
 
     interp = LinearSphericalInterpolator(astropy_to_xyz(points), np.zeros(npoints))
@@ -79,9 +85,8 @@ def test_scalar_function(l, m):  # noqa: E741
     npoints = 10_000
     eval_npoints = 20
 
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
-        eval_points = uniform_spherical_random_surface(eval_npoints)
+    points = uniform_spherical_random_surface(npoints)
+    eval_points = uniform_spherical_random_surface(eval_npoints)
 
     interp = LinearSphericalInterpolator(
         astropy_to_xyz(points), astropy_sph_harm(l, m, points).real
@@ -97,9 +102,8 @@ def test_vector_function(l):  # noqa: E741
     npoints = 10_000
     eval_npoints = 20
 
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
-        eval_points = uniform_spherical_random_surface(eval_npoints)
+    points = uniform_spherical_random_surface(npoints)
+    eval_points = uniform_spherical_random_surface(eval_npoints)
 
     m = np.arange(l + 1)
     interp = LinearSphericalInterpolator(
@@ -116,9 +120,8 @@ def test_matrix_function(l: int):  # noqa: E741
     npoints = 10_000
     eval_npoints = 20
 
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
-        eval_points = uniform_spherical_random_surface(eval_npoints)
+    points = uniform_spherical_random_surface(npoints)
+    eval_points = uniform_spherical_random_surface(eval_npoints)
 
     m = np.arange(-l, l + 1)
     interp = LinearSphericalInterpolator(
@@ -134,8 +137,7 @@ def test_matrix_function(l: int):  # noqa: E741
 def test_benchmark_prepare(benchmark):
     """Benchmark preparation of LinearSphericalInterpolator."""
     npoints = 10_000
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
+    points = uniform_spherical_random_surface(npoints)
     values = np.zeros(npoints)
     benchmark(LinearSphericalInterpolator, astropy_to_xyz(points), values)
 
@@ -144,9 +146,8 @@ def test_benchmark_eval(benchmark):
     """Benchmark evaluation of LinearSphericalInterpolator."""
     npoints = 10_000
     eval_npoints = 1_000
-    with NumpyRNGContext(1234):
-        points = uniform_spherical_random_surface(npoints)
-        eval_points = uniform_spherical_random_surface(eval_npoints)
+    points = uniform_spherical_random_surface(npoints)
+    eval_points = uniform_spherical_random_surface(eval_npoints)
     values = np.zeros(npoints)
     interp = LinearSphericalInterpolator(astropy_to_xyz(points), values)
     benchmark(interp, astropy_to_xyz(eval_points))

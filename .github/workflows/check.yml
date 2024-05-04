@@ -45,7 +45,7 @@ jobs:
         run: |
           pip install ninja gcovr pytest-cov
           python -c 'import subprocess; import tomllib; subprocess.run(["pip", "install", *tomllib.load(open("pyproject.toml", "rb"))["build-system"]["requires"]], check=True)'
-          pip install -ve .[test] --no-build-isolation -Csetup-args=-Db_coverage=true
+          pip install --no-build-isolation -Csetup-args=-Db_coverage=true -ve .[test]
 
       - name: Run tests
         run: pytest --benchmark-disable --cov test

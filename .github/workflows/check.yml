@@ -53,7 +53,7 @@ jobs:
         run: pytest --benchmark-disable --cov test
 
       - name: Analyze C coverage
-        run: gcovr -vs
+        run: gcovr -s --cobertura coverage.xml
 
       - name: Upload to Codecov.io
         uses: codecov/codecov-action@v4

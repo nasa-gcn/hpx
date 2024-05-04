@@ -12,7 +12,8 @@ add_project_arguments(
     language: 'cpp')
 
 add_project_dependencies(
-    dependency('numpy'),
+    # FIXME: replace with dependency('numpy') once we depend on numpy>=2.0.0rc1
+    declare_dependency(include_directories: include_directories(run_command(py, ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'], check: true).stdout().strip())),
     dependency('CGAL'),
     language: 'cpp')
 

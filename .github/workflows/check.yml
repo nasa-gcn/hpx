@@ -48,7 +48,7 @@ jobs:
           pip install -ve .[test] --no-build-isolation -Csetup-args=-Db_coverage=true
 
       - name: Run tests
-        run: pytest --benchmark-disable --cov test
+        run: pytest --benchmark-disable test
 
       - name: Analyze native code coverage
         run: gcovr --cobertura coverage.xml && rm -rf build

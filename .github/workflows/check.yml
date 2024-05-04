@@ -32,6 +32,8 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -59,4 +61,4 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ./.coverage,./cobertura.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true

@@ -51,7 +51,7 @@ jobs:
         run: pytest --benchmark-disable --cov test
 
       - name: Analyze native code coverage
-        run: gcovr --lcov coverage.lcov
+        run: gcovr --cobertura coverage.xml
 
       - name: Upload to Codecov.io
         uses: codecov/codecov-action@v4

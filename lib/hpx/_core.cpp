@@ -229,7 +229,7 @@ values : ndarray of floats, shape (npoints, ...)
 Notes
 -----
 The interpolation method is analogous to SciPy's
-:class:`~scipy.interpolation.LinearNDInterpolator` except that the points lie
+:class:`~scipy.interpolate.LinearNDInterpolator` except that the points lie
 on the surface of a sphere.
 
 The interpolation is done using CGAL by finding the 3D Delaunay triangulation

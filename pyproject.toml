@@ -34,7 +34,7 @@ test = [
 build-backend = 'mesonpy'
 requires = [
     "meson-python",
-    "numpy>=1.23",
+    "numpy>=2.0.0",
 ]
 
 [tool.meson-python]

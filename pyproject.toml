@@ -50,9 +50,9 @@ skip = [
     # `Need python for x86_64, but found x86`.
     # See https://github.com/nasa-gcn/hpx/pull/14
     "*win32",
-    # Skip this platform because meson cannot find numpy-config.
-    # See https://github.com/nasa-gcn/hpx/pull/12
-    "pp*-win_amd64",
+    # Skip PyPy because it will be disabled by default in cibuildwheel 3.x.
+    # FIXME: Remove when we update to cibuildwheel 3.x.
+    "*pp*",
 ]
 test-extras = ["test"]
 test-command = ["pytest {project}/test --benchmark-disable"]

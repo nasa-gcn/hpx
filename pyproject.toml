@@ -72,16 +72,6 @@ repair-wheel-command = "delvewheel repair --add-path C:\\\\Users\\\\runneradmin\
 CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"
 
 [[tool.cibuildwheel.overrides]]
-select = "pp*"
-# PyPy does not support the Python limited API.
-config-settings.setup-args = "-Dpython.allow_limited_api=false"
-# We can't run our full pytest test suite on PyPy wheels
-# because Scipy doesn't distributes PyPy wheels.
-# See https://github.com/scipy/scipy/issues/17974
-test-extras = []
-test-command = ["python -c 'import hpx._core'"]
-
-[[tool.cibuildwheel.overrides]]
 # macOS arm64 wheels are built on GitHub on macOS 13; set deployment target accordingly
 select = "*macosx_x86_64"
 inherit.environment = "append"

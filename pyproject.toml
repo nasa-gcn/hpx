@@ -64,10 +64,6 @@ before-all = [
 [tool.cibuildwheel.environment]
 CMAKE = "$HOME/micromamba/bin/cmake"
 
-[tool.cibuildwheel.linux]
-# Build Linux wheels for aarch64 under emulation.
-archs = ["auto", "aarch64"]
-
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --add-path C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin -w {dest_dir} {wheel}"

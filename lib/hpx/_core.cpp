@@ -209,8 +209,8 @@ static PyObject *LinearSphericalInterpolator_init(PyObject *module, PyObject *ar
     }
     reinterpret_cast<PyUFuncObject*>(result)->obj = capsule;
 fail:
-    Py_XDECREF(points_array);
-    Py_XDECREF(values_array);
+    Py_XDECREF(reinterpret_cast<PyObject*>(points_array));
+    Py_XDECREF(reinterpret_cast<PyObject*>(values_array));
     return result;
 }
 

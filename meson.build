@@ -26,6 +26,6 @@ py.install_sources(
 py.extension_module(
     '_core',
     'lib/hpx/_core.cpp',
-    limited_api: '3.10',
+    limited_api: '3.11',
     subdir: 'hpx',
     install: true)

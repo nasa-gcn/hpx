@@ -19,6 +19,7 @@ add_project_dependencies(
 py.install_sources(
     'lib/hpx/__init__.py',
     'lib/hpx/_core.pyi',
+    'lib/hpx/py.typed',
     subdir: 'hpx')
 
 py.extension_module(

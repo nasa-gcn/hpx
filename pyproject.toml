@@ -3,6 +3,7 @@ name = "hpx"
 description = "Multiresolution HEALPix sampling and adaptive grids"
 readme = "README.md"
 authors = [ { name = "Leo Singer", email = "leo.p.singer@nasa.gov" } ]
+license = "Apache-2.0"
 classifiers = [
     "Development Status :: 1 - Planning",
     "Operating System :: MacOS",

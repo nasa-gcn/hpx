@@ -32,6 +32,9 @@ test = [
     "scipy",
 ]
 
+[project.urls]
+GitHub = "https://github.com/nasa-gcn/hpx"
+
 [build-system]
 build-backend = 'mesonpy'
 requires = [

@@ -85,3 +85,11 @@ environment.MACOSX_DEPLOYMENT_TARGET = "13.0"
 select = "*macosx_arm64"
 inherit.environment = "append"
 environment.MACOSX_DEPLOYMENT_TARGET = "14.0"
+
+[[tool.cibuildwheel.overrides]]
+# meson-python: error: The package targets Python's Limited API, which is not
+# supported by free-threaded CPython. The "python.allow_limited_api" Meson
+# build option may be used to override the package default.
+select = "cp???t-*"
+inherit.config-settings = "append"
+config-settings.setup-args = "-Dpython.allow_limited_api=false"

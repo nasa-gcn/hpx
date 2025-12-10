@@ -75,10 +75,10 @@ repair-wheel-command = "delvewheel repair --add-path C:\\\\Users\\\\runneradmin\
 CMAKE = "C:\\\\Users\\\\runneradmin\\\\micromamba\\\\Library\\\\bin\\\\cmake"
 
 [[tool.cibuildwheel.overrides]]
-# macOS arm64 wheels are built on GitHub on macOS 13; set deployment target accordingly
+# macOS arm64 wheels are built on GitHub on macOS 15; set deployment target accordingly
 select = "*macosx_x86_64"
 inherit.environment = "append"
-environment.MACOSX_DEPLOYMENT_TARGET = "13.0"
+environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
 
 [[tool.cibuildwheel.overrides]]
 # macOS arm64 wheels are built on GitHub on macOS 14; set deployment target accordingly

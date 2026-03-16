@@ -29,7 +29,7 @@ test = [
     "astropy",
     "pytest",
     "pytest-benchmark",
-    "scipy",
+    "scipy >= 1.15.0",
 ]
 
 [project.urls]

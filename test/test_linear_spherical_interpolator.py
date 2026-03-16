@@ -8,7 +8,7 @@ from astropy.coordinates import (
 from astropy import units as u
 from astropy.utils.misc import NumpyRNGContext
 import numpy as np
-from scipy.special import sph_harm
+from scipy.special import sph_harm_y
 import pytest
 
 from hpx._core import LinearSphericalInterpolator
@@ -54,9 +54,7 @@ def astropy_sph_harm(l, m, points: BaseRepresentation):  # noqa: E741
     points = points.represent_as(PhysicsSphericalRepresentation)
     theta = points.theta.to_value(u.rad)
     phi = points.phi.to_value(u.rad)
-    # Caution: scipy.special.sph_harm expects the arguments in the order m, l;
-    # not the more conventional order of l, m.
-    return sph_harm(m, l, theta, phi)
+    return sph_harm_y(l, m, theta, phi)
 
 
 def astropy_to_xyz(points: BaseRepresentation):

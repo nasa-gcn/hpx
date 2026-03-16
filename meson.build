@@ -1,7 +1,7 @@
 project(
     'hpx',
     'cpp',
-    version: run_command('python', '-m', 'setuptools_scm').stdout().strip(),
+    version: run_command('python', '-m', 'setuptools_scm', check: true).stdout().strip(),
     meson_version: '>=1.5.0',
     default_options: 'cpp_std=c++17',
 )

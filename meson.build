@@ -9,8 +9,8 @@ project(
 py = import('python').find_installation(pure: false)
 
 add_project_arguments(
-    '-DNPY_TARGET_VERSION=NPY_1_23_API_VERSION',
-    '-DNPY_NO_DEPRECATED_API=NPY_1_23_API_VERSION',
+    '-DNPY_TARGET_VERSION=NPY_2_0_API_VERSION',
+    '-DNPY_NO_DEPRECATED_API=NPY_2_0_API_VERSION',
     language: 'cpp',
 )
 

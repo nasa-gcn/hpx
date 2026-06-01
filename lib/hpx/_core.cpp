@@ -287,5 +287,5 @@ PyMODINIT_FUNC PyInit__core(void)
 {
     import_array();
     import_ufunc();
-    return PyModule_Create(&moduledef);
+    return PyModuleDef_Init(&moduledef);
 }

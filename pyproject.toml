@@ -21,7 +21,7 @@ dependencies = [
 requires-python = ">=3.11"
 dynamic = [ "version" ]
 
-[project.optional-dependencies]
+[dependency-groups]
 doc = [
     "sphinx-astropy[confv2]",
 ]
@@ -57,7 +57,7 @@ skip = [
     # See https://github.com/nasa-gcn/hpx/pull/14
     "*win32",
 ]
-test-extras = ["test"]
+test-groups = ["test"]
 test-command = ["pytest {project}/test --benchmark-disable"]
 before-all = [
     "curl -L https://micro.mamba.pm/install.sh | bash",
